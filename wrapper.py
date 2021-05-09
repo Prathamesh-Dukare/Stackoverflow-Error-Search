@@ -8,7 +8,7 @@ def err_search():
         proc=Popen(args ,stdout=PIPE, stderr=PIPE)
         out,err=proc.communicate()
         return out,err
-    errors=err_scrap('python main.py')
+    errors=err_scrap('python testfile.py')
 
     if(errors[1].decode()):
         print('Error is Occured : Searching for details...')
@@ -22,3 +22,23 @@ def err_search():
                 return err_msg
     else:
         print("No Error Occured :-)")
+
+def apicall(err_msg):
+    if(err_msg):
+        api=f"https://api.stackexchange.com/2.2/search?fromdate=1556668800&order=desc&sort=activity&tagged=python&intitle={err_msg}&site=stackoverflow"
+        responce=requests.get(api)
+        data=responce.json()
+        linklist=[]
+        for item in data["items"]:
+            if(("is_answered",True) in item.items()):
+                if(len(linklist)<5):
+                    linklist.append(item["link"])
+    
+        def open_links(linklist):
+            print('Opening relevent threads on stackoverflow...')
+            for link in linklist:
+                webbrowser.open(link,new=2)
+        open_links(linklist)
+
+if __name__ == "__main__":
+    apicall(err_search())
